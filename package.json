@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 7000",
+    "dev": "next dev -p 7004",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@peddleon/ped-ux-react-library": "1.8.0",
-    "@peddleon/ped-ux-template-library": "0.0.1-pr-20.51",
+    "@peddleon/ped-ux-template-library": "1.0.0-pr-24.55",
     "next": "14.1.3",
     "react": "^18",
     "react-dom": "^18",
