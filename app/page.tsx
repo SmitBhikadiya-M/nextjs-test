@@ -1,101 +1,96 @@
+"use client";
 import Image from "next/image";
+import styles from "./page.module.css";
+import { CompanyProfile } from "@peddleon/ped-ux-template-library";
+import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const searchParam = useSearchParams();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  return (
+    <CompanyProfile
+      templateConfig={{
+        retrieveComapnyConfig: {
+          api: "https://dev-service.peddle.com/buyer/odata/v2/companies?%24filter=id+eq+5230",
+          mapRetrieveDataFn: (res) => {
+            const data = res?.value[0] ?? {};
+            return {
+              id: data?.id,
+              name: data?.name,
+              phone: data?.phone,
+              website: { value: data?.website, isRequired: false, hide: false },
+              mailingAddress: {
+                street: data?.mailing_address?.street,
+                zipCode: data?.mailing_address?.zip_code,
+                city: data?.mailing_address?.city,
+                stateCode: data?.mailing_address?.state_code,
+                country: data?.mailing_address?.country,
+              },
+              dropOffAddress: {
+                street: data?.address?.street,
+                zipCode: data?.address?.zip_code,
+                city: data?.address?.city,
+                stateCode: data?.address?.state_code,
+                country: data?.address?.country,
+              },
+            };
+          },
+          fetchToken: () => searchParam.get("token") || "fetch_Token",
+        },
+        updateComapnyConfig: {
+          api: "https://dev-service.peddle.com/buyer/odata/v1/companies/5230",
+          mapUpdateDataFn: (formData) => {
+            const { name, phone, website, mailingAddress, dropOffAddress } =
+              formData;
+            return {
+              name,
+              phone,
+              website,
+              mailing_address: mailingAddress && {
+                street: mailingAddress?.street,
+                zip_code: mailingAddress?.zipCode,
+                city: mailingAddress?.city,
+                state_code: mailingAddress?.stateCode,
+              },
+              address: dropOffAddress && {
+                street: dropOffAddress?.street,
+                zip_code: dropOffAddress?.zipCode,
+                city: dropOffAddress?.city,
+                state_code: dropOffAddress?.stateCode,
+              },
+            };
+          },
+          fetchToken: () => "fetch_token",
+          overrideFieldErrorMessages: {
+            website: {
+              website_exceeds_max_length:
+                "[*] Website cannot exceed the maximum length",
+            },
+            name: {
+              invalid_name: "[*] Name is invalid",
+              name_exceeds_max_length:
+                "[*] Name cannot exceed the maximum length",
+            },
+            mailingZipcode: {
+              invalid_mailing_zip_code: "[*] Mailing ZIP code is invalid",
+            },
+          },
+        },
+        zipCodeConfig: {
+          api: (zipCode) =>
+            `https://dev-service.peddle.com/universal/v1/zip-codes/${zipCode}`,
+          mapRetrieveDataFn: (res) => ({
+            zipCode: res?.zip_code,
+            city: res?.cities[0],
+            stateCode: res?.state.code,
+          }),
+          fetchToken: () => "fetch_token",
+        },
+        googlePlaceAPIKey: "",
+        hasMailingAddressSection: true,
+        hasDropoffAddressSection: true,
+      }}
+    />
   );
 }
