@@ -4,10 +4,10 @@ import styles from "./page.module.css";
 import { CompanyProfile } from "@peddleon/ped-ux-template-library";
 import { useRouter } from "next/router";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function Home() {
+const Template = () => {
   const searchParam = useSearchParams();
-
   return (
     <CompanyProfile
       templateConfig={{
@@ -92,5 +92,13 @@ export default function Home() {
         hasDropoffAddressSection: true,
       }}
     />
+  );
+};
+
+export default function Home() {
+  return (
+    <Suspense>
+      <Template />
+    </Suspense>
   );
 }
